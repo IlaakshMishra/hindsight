@@ -1,8 +1,12 @@
 """Standalone script test for `hooks/retrieve.py` (Task 6).
 
-Doesn't need a live Claude Code session: invokes the hook script exactly
-the way `hooks/hooks.json` does (`python3 hooks/retrieve.py`, JSON
-payload on stdin, JSON read back from stdout), using a fabricated
+Doesn't need a live Claude Code session: invokes the hook script the same
+way `hooks/hooks.json` does functionally (JSON payload on stdin, JSON
+read back from stdout) -- via `sys.executable` here rather than
+hooks.json's actual `uv run --no-project hooks/retrieve.py` launcher,
+since the script itself is what's under test, not the launch mechanism
+(see `test_hooks_json.py` for a test that pins hooks.json's real command
+shape). Uses a fabricated
 `PostToolUseFailure` payload matching the real schema confirmed against
 `https://code.claude.com/docs/en/hooks.md` ("PostToolUseFailure input"
 section) during this task.

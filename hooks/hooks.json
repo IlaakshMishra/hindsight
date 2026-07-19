@@ -6,14 +6,14 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/retrieve.py"],
+            "command": "uv",
+            "args": ["run", "--no-project", "${CLAUDE_PLUGIN_ROOT}/hooks/retrieve.py"],
             "timeout": 30
           },
           {
             "type": "command",
-            "command": "python3",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/mark_error.py"],
+            "command": "uv",
+            "args": ["run", "--no-project", "${CLAUDE_PLUGIN_ROOT}/hooks/mark_error.py"],
             "timeout": 30
           }
         ]
@@ -24,8 +24,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/capture.py"],
+            "command": "uv",
+            "args": ["run", "--no-project", "${CLAUDE_PLUGIN_ROOT}/hooks/capture.py"],
             "timeout": 30
           }
         ]

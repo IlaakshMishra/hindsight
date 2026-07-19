@@ -2,9 +2,11 @@
 (Task 7's marker-and-capture pair).
 
 Same approach as `hooks/tests/test_retrieve.py` (Task 6): no live Claude
-Code session needed. Each hook script is invoked exactly the way
-`hooks/hooks.json` invokes it (`python3 hooks/<script>.py`, a JSON
-payload on stdin, JSON read back from stdout), using fabricated but
+Code session needed. Each hook script is invoked the same way
+`hooks/hooks.json` invokes it functionally (a JSON payload on stdin, JSON
+read back from stdout) -- via `sys.executable`, not hooks.json's actual
+`uv run --no-project hooks/<script>.py` launcher (see `test_hooks_json.py`
+for a test pinning that real command shape) -- using fabricated but
 schema-accurate `PostToolUseFailure`/`Stop` payloads (`session_id` is a
 "Common input field" present on every hook event per
 `https://code.claude.com/docs/en/hooks.md`, confirmed directly during

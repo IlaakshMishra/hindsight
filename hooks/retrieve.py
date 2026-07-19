@@ -39,10 +39,18 @@ outright -- not because any field feeds the output, but so a future
 payload-shape change, a truncated/garbled stream, or even non-UTF-8 bytes
 on stdin can't turn into an unhandled exception that makes this hook
 silently stop nudging on every tool failure in a session. Stdlib only
-(`json`, `sys`): no `mcp`,
-`fastembed`, or any pinned dependency, so this runs directly via plain
-`python3` in `hooks/hooks.json` -- no `uv run` startup cost on every
-single tool failure. No MCP call happens in this process; the nudge only
+(`json`, `sys`): no `mcp`, `fastembed`, or any pinned dependency.
+
+Invoked via `uv run --no-project` in `hooks/hooks.json`, not bare
+`python3` -- an earlier version used bare `python3` on the theory that a
+zero-dependency script shouldn't pay `uv`'s startup cost, but that broke
+for users whose only interpreter on PATH is named `python`, not `python3`
+(common on some Windows/Linux setups). `uv` is already a hard prerequisite
+for this plugin (the MCP server needs it), it resolves a real Python
+regardless of what's named what on PATH, and measured startup overhead
+(~35ms cached) is negligible next to `python3` resolved through a shim
+layer like pyenv -- so routing every hook through `uv run` fixed the
+portability bug at no real cost.
 tells Claude to call `search_lessons` on its next turn.
 """
 

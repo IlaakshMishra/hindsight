@@ -7,9 +7,11 @@ session. Solve an error once, and every teammate's Claude skips the dead
 ends next time. Lives in your repo. Sends nothing to the cloud.
 
 **Prerequisite:** [`uv`](https://docs.astral.sh/uv/) must be installed on
-your machine — the MCP server (and the standalone reindex CLI below) are
-launched via `uv run`, which auto-provisions its own isolated Python
-environment on first use (no manual `pip install`/venv setup required).
+your machine — the MCP server, the hook scripts, and the standalone
+reindex CLI are all launched via `uv run`, which resolves a real Python
+regardless of whether your system's interpreter is named `python3` or
+`python` (auto-provisions its own isolated environment on first use — no
+manual `pip install`/venv setup required).
 
 ## Why not just a bigger CLAUDE.md?
 

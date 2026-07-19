@@ -3,6 +3,28 @@
 No git in this project (user constraint). Tasks tracked by file path, not
 commit hash.
 
+## Post-ship bug: hooks failed for users without `python3` on PATH
+
+User-reported production bug (after all 8 tasks + final review shipped):
+`hooks.json` launched all three hooks via bare `command: "python3"`.
+Users whose only interpreter on PATH is named `python` (some
+Windows/Linux setups) got a silently failing hook — no nudge, no marker,
+no capture, no visible error. Measured `uv run --no-project` startup
+against this machine's `python3` (resolved through a pyenv shim): `uv`
+was *faster* cached (~35ms vs ~96ms) — the original "avoid uv's startup
+cost" rationale for using bare python3 didn't hold up, and `uv` is
+already a hard prerequisite for this plugin (the MCP server needs it).
+Fixed: all three `hooks.json` entries now launch via `command: "uv"`,
+`args: ["run", "--no-project", <script>]` — resolves a real Python
+regardless of what's named what on PATH. Updated stale comments in
+`hooks/retrieve.py` and both hook test files that asserted the old
+"bare python3, no uv" rationale. Added `hooks/tests/test_hooks_json.py`
+(3 new tests) pinning hooks.json's actual command shape, specifically to
+catch a future accidental revert to bare python3/python. Verified: full
+suite 26/26 (was 23), `claude plugin validate .` clean, and a live
+end-to-end invocation via the exact `uv run --no-project` command
+hooks.json now specifies.
+
 - Task 1 (skeleton): DONE, reviewed, approved. `.claude-plugin/plugin.json`,
   `.mcp.json`, `server/main.py` (FastMCP stdio server, 3 stub tools),
   `server/requirements.txt`, `README.md`, `.gitignore`. Verified via
