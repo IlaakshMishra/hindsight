@@ -39,6 +39,39 @@ difference is the whole product.
 (Or, from a local checkout instead of GitHub: `/plugin marketplace add .`
 from inside this repo.)
 
+**Then, before your first real session, warm the cache once:**
+
+```
+uv run --no-project --with-requirements <path-to-hindsight>/server/requirements.txt \
+    python3 -c "from fastembed import TextEmbedding; TextEmbedding(model_name='BAAI/bge-small-en-v1.5')"
+```
+
+Why: Claude Code's default connection timeout for an MCP server is 5
+seconds. This plugin's server is launched via `uv run --with-requirements`
+(see the prerequisite note above), and on a genuinely first-ever run `uv`
+has to resolve and download `mcp`, `fastembed`, and fastembed's own
+dependencies (`onnxruntime`, `tokenizers`, `numpy`, ...) from PyPI, and
+`fastembed` separately downloads the `BAAI/bge-small-en-v1.5` embedding
+model itself the first time it's instantiated — together routinely 10s to
+a minute or more depending on your connection, nowhere close to 5
+seconds. The result is exactly what it looks like: **"connection timed
+out."** It's not a bug in the server itself, and it's a one-time cost —
+both `uv`'s package cache and the downloaded model are cached locally
+after this, so every launch after the first (including the real server
+launch inside Claude Code) resolves in well under a second. Running the
+command above once, outside that 5-second window, warms the exact same
+caches the real launch will use — it imports fastembed and instantiates
+the same model the server itself lazily loads on first use, so nothing's
+left to download later.
+
+If you're already past this — a teammate hit "connection timed out"
+installing today — running that same command now fixes it for their next
+`/mcp` reconnect or session restart; no need to reinstall the plugin. If
+it still happens after that (a slow connection where even the warm-up
+itself is fighting the clock, or a corporate network that blocks PyPI/
+HuggingFace outright), raising the timeout for one session covers it:
+`MCP_TIMEOUT=60000 claude`.
+
 Once installed, lessons your team saves live at `.debug-memory/lessons/`
 in each consuming repo — commit that directory like any other source file
 so the whole team shares the same lesson library.

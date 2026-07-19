@@ -1,5 +1,32 @@
 # Hindsight build — progress ledger
 
+## Post-ship bug: MCP server "connection timed out" for new installs
+
+User-reported (after pushing the hooks.json fix, real users installing
+fresh). Root cause, confirmed against Claude Code's live docs, not
+guessed: default MCP server connect timeout is 5 seconds
+(`MCP_TIMEOUT`, default 5000ms). `.mcp.json` launches the server via
+`uv run --with-requirements`, which on a genuinely first-ever run has to
+resolve+download `mcp`/`fastembed`/`onnxruntime`/`tokenizers`/`numpy`
+from PyPI, and `fastembed` separately downloads the
+`BAAI/bge-small-en-v1.5` model from HuggingFace on first instantiation —
+together routinely 10s-60s+, blowing straight through the 5s window.
+Every new install hits this on literally the first launch; it's not
+machine-specific. No per-server `.mcp.json` field controls this specific
+timeout (the `timeout` field that exists there governs tool-call
+execution, not the initial connect handshake — confirmed from docs).
+Fixed via README, not code (nothing in the plugin's control can extend
+Claude Code's own connect timeout from inside `.mcp.json`): added an
+Install-section warm-up command
+(`uv run --no-project --with-requirements ... python3 -c "from fastembed
+import TextEmbedding; TextEmbedding(model_name='BAAI/bge-small-en-v1.5')"`)
+that pre-populates both uv's package cache and fastembed's model cache
+*before* the user's first real Claude Code session — after which the
+real server launch resolves from cache in well under a second, every
+time. Verified the exact command works end to end. Also documented the
+`MCP_TIMEOUT=60000 claude` one-session fallback for slow/first-time
+network conditions where even the warm-up races the clock.
+
 No git in this project (user constraint). Tasks tracked by file path, not
 commit hash.
 
