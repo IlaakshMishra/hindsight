@@ -3,7 +3,8 @@
   "name": "hindsight",
   "description": "Shared, on-demand memory of debugging sessions for Claude Code teams — solve an error once, skip the dead ends next time. Local-first, git-native, nothing sent to the cloud.",
   "owner": {
-    "name": "IlaakshMishra"
+    "name": "IlaakshMishra",
+    "url": "https://github.com/IlaakshMishra/hindsight"
   },
   "plugins": [
     {

@@ -1,5 +1,7 @@
 # hindsight
 
+[github.com/IlaakshMishra/hindsight](https://github.com/IlaakshMishra/hindsight)
+
 Hindsight gives your team shared, on-demand memory of every debugging
 session. Solve an error once, and every teammate's Claude skips the dead
 ends next time. Lives in your repo. Sends nothing to the cloud.
@@ -28,16 +30,12 @@ difference is the whole product.
 ## Install
 
 ```
-/plugin marketplace add <path-or-git-url-to-this-repo>
+/plugin marketplace add IlaakshMishra/hindsight
 /plugin install hindsight
 ```
 
-Replace `<path-or-git-url-to-this-repo>` with wherever this repo lives for
-you — a local path (e.g. `.` if you're already inside a checkout of it) or
-a git remote URL once it's pushed somewhere your team can reach. This repo
-doesn't ship with a fixed remote baked in, so there's nothing to fake here
-— point the marketplace at whatever location you actually cloned or will
-push it to.
+(Or, from a local checkout instead of GitHub: `/plugin marketplace add .`
+from inside this repo.)
 
 Once installed, lessons your team saves live at `.debug-memory/lessons/`
 in each consuming repo — commit that directory like any other source file
@@ -84,6 +82,55 @@ directory per plugin *per machine*, shared across every project that has
 this plugin installed — the `<project slug>` subdirectory (derived from
 `${CLAUDE_PROJECT_DIR}`) keeps two different repos on the same machine
 from sharing (and silently overwriting) one index.
+
+## Example
+
+A worked walkthrough of the automatic loop — no `/hindsight` command
+needed for any of this, it just happens:
+
+**Day 1 — a teammate hits an error and fixes it.**
+
+1. They're debugging an ECS task that starts then immediately stops. A
+   `Bash` tool call (`aws ecs describe-tasks ...`) comes back showing a
+   `ResourceInitializationError`. That failed tool call fires
+   `PostToolUseFailure`, which nudges Claude: *"A tool call just failed —
+   `hindsight search_lessons` can surface past team lessons on similar
+   errors..."* Claude calls `search_lessons("ECS task stops immediately,
+   ResourceInitializationError pulling image")`. Nothing relevant comes
+   back yet — this is the first time anyone's hit it.
+2. Claude and the developer spend twenty minutes ruling out task-role
+   permissions and image issues, then find the real cause: the task's
+   subnet has no NAT route and no VPC endpoints, so it can't reach ECR.
+   They add the missing endpoints. The task starts.
+3. The developer keeps working. Eventually their turn ends — `Stop`
+   fires. A marker was set back in step 1 (any `PostToolUseFailure` sets
+   one), so the hook nudges Claude that this session's failure looks
+   resolved and the `lesson-distiller` agent can turn it into a saved
+   lesson. Claude dispatches `lesson-distiller` with a short summary: the
+   error signature, what was tried and ruled out, the root cause, the
+   fix. The agent scrubs anything secret-shaped, calls `save_lesson`, and
+   a new file lands at
+   `.debug-memory/lessons/2026-07-18-ecs-task-vpc-subnet.md`.
+4. The developer commits it along with their actual fix — it's just a
+   markdown file, reviewable in the same PR.
+
+**Day 12 — a different teammate hits a similar error.**
+
+5. Same symptom, different service. Their tool call fails the same way,
+   the same `PostToolUseFailure` nudge fires, Claude calls
+   `search_lessons("task fails to pull image, stuck initializing")`. This
+   time the Day-1 lesson clears the similarity threshold and comes back
+   with its `failed_approaches` (task role, image rebuild — both dead
+   ends) and its `fix` (VPC endpoints or a NAT route). Claude treats the
+   fix as a starting hypothesis, not gospel — the codebase may have
+   changed — but skips straight past the two dead ends the first
+   developer already ruled out, and checks the subnet routing first.
+
+No one ran `/hindsight save` or `/hindsight search` by hand anywhere in
+this — that's the point. The manual subcommands exist for the cases
+automation doesn't cover: seeding the library from an old incident that
+predates this plugin, checking what's saved, or forcing a reindex after
+`git pull`.
 
 ## Tool surface
 

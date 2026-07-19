@@ -1,5 +1,10 @@
 {
   "name": "hindsight",
   "version": "0.1.0",
-  "description": "Shared memory for debugging sessions: search and save hard-won fixes across your team so nobody re-debugs the same error twice."
+  "description": "Shared memory for debugging sessions: search and save hard-won fixes across your team so nobody re-debugs the same error twice.",
+  "author": {
+    "name": "IlaakshMishra",
+    "url": "https://github.com/IlaakshMishra"
+  },
+  "repository": "https://github.com/IlaakshMishra/hindsight"
 }
