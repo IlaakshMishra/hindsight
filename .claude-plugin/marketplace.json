@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "hindsight",
+  "description": "Shared, on-demand memory of debugging sessions for Claude Code teams — solve an error once, skip the dead ends next time. Local-first, git-native, nothing sent to the cloud.",
+  "owner": {
+    "name": "IlaakshMishra"
+  },
+  "plugins": [
+    {
+      "name": "hindsight",
+      "description": "Shared memory for debugging sessions: search and save hard-won fixes across your team so nobody re-debugs the same error twice.",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

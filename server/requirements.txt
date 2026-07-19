@@ -1,0 +1,36 @@
+# Pinned to the versions verified against this plugin during development.
+#
+# .mcp.json launches the server via `uv run --no-project --with-requirements
+# server/requirements.txt server/main.py`. uv reads this file and
+# auto-provisions an isolated, ephemeral environment (cached in uv's own
+# cache dir, not a project-local directory) on first launch — no manual
+# venv-bootstrap step required on a fresh checkout. Requires `uv`
+# (https://docs.astral.sh/uv/) to be installed on the developer's machine;
+# nothing else to set up.
+#
+# To reproduce the same environment manually (e.g. for local testing
+# outside Claude Code):
+#   uv run --no-project --with-requirements server/requirements.txt server/main.py
+
+# Official MCP Python SDK - server transport, tool registration (FastMCP).
+mcp==1.27.0
+
+# Local embeddings for the similarity index (BAAI/bge-small-en-v1.5).
+# Wired up starting Task 3 (server/index.py).
+fastembed==0.8.0
+
+# YAML frontmatter parsing (schema.py's parse_lesson(), the inverse of
+# Lesson.render()). render()'s emission stays hand-rolled (see schema.py's
+# module docstring for why); parsing takes the PyYAML dependency instead
+# of hand-rolling a YAML-escape unescaper. Was already an indirect
+# dependency (pulled in transitively by mcp) and used directly by
+# server/tests/test_schema.py since Task 2 — pinned explicitly here from
+# Task 3 onward since production code (schema.py) now imports it too, not
+# just tests.
+PyYAML==6.0.3
+
+# Test runner for server/tests/ (schema.py, scrub.py, and later modules).
+# Run with:
+#   uv run --no-project --with-requirements server/requirements.txt \
+#       pytest server/tests/
+pytest==8.3.4

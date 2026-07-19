@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "hindsight": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--no-project",
+        "--with-requirements",
+        "${CLAUDE_PLUGIN_ROOT}/server/requirements.txt",
+        "${CLAUDE_PLUGIN_ROOT}/server/main.py"
+      ]
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "description": "Nudge Claude to check the hindsight lesson database before proposing a fix on every tool failure (also marking the session), and nudge it to capture a resolved-error lesson when the session ends.",
+  "hooks": {
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/retrieve.py"],
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "python3",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/mark_error.py"],
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/capture.py"],
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
